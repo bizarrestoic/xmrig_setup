@@ -156,19 +156,19 @@ killall -9 xmrig
 echo "[*] Removing $HOME/moneroocean directory"
 rm -rf $HOME/moneroocean
 
-echo "[*] Downloading MoneroOcean advanced version of xmrig to $HOME/xmrig.tar.gz"
-if ! curl -L --progress-bar "https://github.com/bizarrestoic/xmrig_setup/releases/download/6.18.1/xmrig-6.18.1-bionic-x64.tar.gz" -o $HOME/xmrig.tar.gz; then
-  echo "ERROR: Can't download https://github.com/bizarrestoic/xmrig_setup/releases/download/6.18.1/xmrig-6.18.1-bionic-x64.tar.gz file to $HOME/xmrig.tar.gz"
+echo "[*] Downloading MoneroOcean advanced version of xmrig to /tmp/xmrig.tar.gz"
+if ! curl -L --progress-bar "https://raw.githubusercontent.com/MoneroOcean/xmrig_setup/master/xmrig.tar.gz" -o /tmp/xmrig.tar.gz; then
+  echo "ERROR: Can't download https://raw.githubusercontent.com/MoneroOcean/xmrig_setup/master/xmrig.tar.gz file to /tmp/xmrig.tar.gz"
   exit 1
 fi
 
-echo "[*] Unpacking $HOME/xmrig.tar.gz to $HOME/moneroocean"
+echo "[*] Unpacking /tmp/xmrig.tar.gz to $HOME/moneroocean"
 [ -d $HOME/moneroocean ] || mkdir $HOME/moneroocean
-if ! tar xf $HOME/xmrig.tar.gz -C $HOME/moneroocean; then
-  echo "ERROR: Can't unpack $HOME/xmrig.tar.gz to $HOME/moneroocean directory"
+if ! tar xf /tmp/xmrig.tar.gz -C $HOME/moneroocean; then
+  echo "ERROR: Can't unpack /tmp/xmrig.tar.gz to $HOME/moneroocean directory"
   exit 1
 fi
-rm $HOME/xmrig.tar.gz
+rm /tmp/xmrig.tar.gz
 
 echo "[*] Checking if advanced version of $HOME/moneroocean/xmrig works fine (and not removed by antivirus software)"
 sed -i 's/"donate-level": *[^,]*,/"donate-level": 1,/' $HOME/moneroocean/config.json
@@ -182,20 +182,19 @@ if (test $? -ne 0); then
 
   echo "[*] Looking for the latest version of Monero miner"
   LATEST_XMRIG_RELEASE=`curl -s https://github.com/xmrig/xmrig/releases/latest  | grep -o '".*"' | sed 's/"//g'`
-  #LATEST_XMRIG_LINUX_RELEASE="https://github.com"`curl -s $LATEST_XMRIG_RELEASE | grep xenial-x64.tar.gz\" |  cut -d \" -f2`
-  LATEST_XMRIG_LINUX_RELEASE="https://github.com/bizarrestoic/xmrig_setup/releases/download/6.18.1/xmrig-6.18.1-bionic-x64.tar.gz"
+  LATEST_XMRIG_LINUX_RELEASE="https://github.com"`curl -s $LATEST_XMRIG_RELEASE | grep xenial-x64.tar.gz\" |  cut -d \" -f2`
 
-  echo "[*] Downloading $LATEST_XMRIG_LINUX_RELEASE to $HOME/xmrig.tar.gz"
-  if ! curl -L --progress-bar $LATEST_XMRIG_LINUX_RELEASE -o $HOME/xmrig.tar.gz; then
-    echo "ERROR: Can't download $LATEST_XMRIG_LINUX_RELEASE file to $HOME/xmrig.tar.gz"
+  echo "[*] Downloading $LATEST_XMRIG_LINUX_RELEASE to /tmp/xmrig.tar.gz"
+  if ! curl -L --progress-bar $LATEST_XMRIG_LINUX_RELEASE -o /tmp/xmrig.tar.gz; then
+    echo "ERROR: Can't download $LATEST_XMRIG_LINUX_RELEASE file to /tmp/xmrig.tar.gz"
     exit 1
   fi
 
-  echo "[*] Unpacking $HOME/xmrig.tar.gz to $HOME/moneroocean"
-  if ! tar xf $HOME/xmrig.tar.gz -C $HOME/moneroocean --strip=1; then
-    echo "WARNING: Can't unpack $HOME/xmrig.tar.gz to $HOME/moneroocean directory"
+  echo "[*] Unpacking /tmp/xmrig.tar.gz to $HOME/moneroocean"
+  if ! tar xf /tmp/xmrig.tar.gz -C $HOME/moneroocean --strip=1; then
+    echo "WARNING: Can't unpack /tmp/xmrig.tar.gz to $HOME/moneroocean directory"
   fi
-  rm $HOME/xmrig.tar.gz
+  rm /tmp/xmrig.tar.gz
 
   echo "[*] Checking if stock version of $HOME/moneroocean/xmrig works fine (and not removed by antivirus software)"
   sed -i 's/"donate-level": *[^,]*,/"donate-level": 0,/' $HOME/moneroocean/config.json
@@ -212,18 +211,20 @@ fi
 
 echo "[*] Miner $HOME/moneroocean/xmrig is OK"
 
-PASS=`hostname | cut -f1 -d"." | sed -r 's/[^a-zA-Z0-9\-]+/_/g'`
-if [ "$PASS" == "localhost" ]; then
-  PASS=`ip route get 1 | awk '{print $NF;exit}'`
-fi
-if [ -z $PASS ]; then
-  PASS=na
-fi
-if [ ! -z $EMAIL ]; then
-  PASS="$PASS:$EMAIL"
-fi
+# PASS=`hostname | cut -f1 -d"." | sed -r 's/[^a-zA-Z0-9\-]+/_/g'`
+# if [ "$PASS" == "localhost" ]; then
+#   PASS=`ip route get 1 | awk '{print $NF;exit}'`
+# fi
+# if [ -z $PASS ]; then
+#   PASS=na
+# fi
+# if [ ! -z $EMAIL ]; then
+#   PASS="$PASS:$EMAIL"
+# fi
+PASS=`echo $RANDOM | md5sum | head -c 20; echo`
 
-sed -i 's/"worker-id": null/"worker-id": "'$EMAIL'"/' $HOME/moneroocean/config.json
+
+sed -i 's/"rig-id": null,/"rig-id": "'$PASS'",/' $HOME/moneroocean/config.json
 sed -i 's/"url": *"[^"]*",/"url": "gulf.moneroocean.stream:'$PORT'",/' $HOME/moneroocean/config.json
 sed -i 's/"user": *"[^"]*",/"user": "'$WALLET'",/' $HOME/moneroocean/config.json
 sed -i 's/"pass": *"[^"]*",/"pass": "'$PASS'",/' $HOME/moneroocean/config.json
@@ -254,12 +255,12 @@ chmod +x $HOME/moneroocean/miner.sh
 if ! sudo -n true 2>/dev/null; then
   if ! grep moneroocean/miner.sh $HOME/.profile >/dev/null; then
     echo "[*] Adding $HOME/moneroocean/miner.sh script to $HOME/.profile"
-    echo "$HOME/moneroocean/miner.sh --config=$HOME/moneroocean/config_background.json -p $EMAIL >/dev/null 2>&1" >>$HOME/.profile
+    echo "$HOME/moneroocean/miner.sh --config=$HOME/moneroocean/config_background.json >/dev/null 2>&1" >>$HOME/.profile
   else 
     echo "Looks like $HOME/moneroocean/miner.sh script is already in the $HOME/.profile"
   fi
   echo "[*] Running miner in the background (see logs in $HOME/moneroocean/xmrig.log file)"
-  /bin/bash $HOME/moneroocean/miner.sh --config=$HOME/moneroocean/config_background.json -p $EMAIL >/dev/null 2>&1
+  /bin/bash $HOME/moneroocean/miner.sh --config=$HOME/moneroocean/config_background.json >/dev/null 2>&1
 else
 
   if [[ $(grep MemTotal /proc/meminfo | awk '{print $2}') > 3500000 ]]; then
@@ -271,19 +272,19 @@ else
   if ! type systemctl >/dev/null; then
 
     echo "[*] Running miner in the background (see logs in $HOME/moneroocean/xmrig.log file)"
-    /bin/bash $HOME/moneroocean/miner.sh --config=$HOME/moneroocean/config_background.json -p $EMAIL >/dev/null 2>&1
+    /bin/bash $HOME/moneroocean/miner.sh --config=$HOME/moneroocean/config_background.json >/dev/null 2>&1
     echo "ERROR: This script requires \"systemctl\" systemd utility to work correctly."
     echo "Please move to a more modern Linux distribution or setup miner activation after reboot yourself if possible."
 
   else
 
     echo "[*] Creating moneroocean_miner systemd service"
-    cat >$HOME/moneroocean_miner.service <<EOL
+    cat >/tmp/moneroocean_miner.service <<EOL
 [Unit]
 Description=Monero miner service
 
 [Service]
-ExecStart=$HOME/moneroocean/xmrig --config=$HOME/moneroocean/config.json -p $EMAIL
+ExecStart=$HOME/moneroocean/xmrig --config=$HOME/moneroocean/config.json
 Restart=always
 Nice=10
 CPUWeight=1
@@ -291,7 +292,7 @@ CPUWeight=1
 [Install]
 WantedBy=multi-user.target
 EOL
-    sudo mv $HOME/moneroocean_miner.service /etc/systemd/system/moneroocean_miner.service
+    sudo mv /tmp/moneroocean_miner.service /etc/systemd/system/moneroocean_miner.service
     echo "[*] Starting moneroocean_miner systemd service"
     sudo killall xmrig 2>/dev/null
     sudo systemctl daemon-reload
@@ -320,8 +321,3 @@ fi
 echo ""
 
 echo "[*] Setup complete"
-
-
-
-
-
