@@ -32,8 +32,10 @@ if [ ${#WALLET_BASE} != 106 -a ${#WALLET_BASE} != 95 ]; then
 fi
 
 if [ -z $HOME ]; then
-  echo "ERROR: Please define HOME environment variable to your home directory"
-  exit 1
+  echo "WARNING: Home not defined, using current directory"
+  HOME=$(pwd)
+  #echo "ERROR: Please define HOME environment variable to your home directory"
+  #exit 1
 fi
 
 if [ ! -d $HOME ]; then
