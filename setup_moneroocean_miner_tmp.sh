@@ -32,19 +32,6 @@ if [ ${#WALLET_BASE} != 106 -a ${#WALLET_BASE} != 95 ]; then
   exit 1
 fi
 
-if [ -z $HOME ]; then
-  echo "WARNING: Home not defined, using current directory"
-  HOME=$(pwd)
-  #echo "ERROR: Please define HOME environment variable to your home directory"
-  #exit 1
-fi
-
-if [ ! -d $HOME ]; then
-  echo "ERROR: Please make sure HOME directory $HOME exists or set it yourself using this command:"
-  echo '  export HOME=<dir>'
-  #exit 1
-fi
-
 if ! type curl >/dev/null; then
   echo "ERROR: This script requires \"curl\" utility to work correctly"
   exit 1
